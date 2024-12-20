@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesticide Application Record</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const dateField = document.getElementById('date');
+            const timeField = document.getElementById('time');
+            const now = new Date();
+            dateField.value = now.toISOString().split('T')[0];
+            timeField.value = now.toTimeString().split(' ')[0];
+
+            const applicationSection = document.getElementById('application');
+            const herbicideList = document.getElementById('herbicide-list');
+
+            const productData = {
+                "submerged algae": ["Product A - Max Rate: 3.0 gal/acre", "Product B - Max Rate: 2.5 gal/acre"],
+                "floating algae": ["Product C - Max Rate: 1.5 gal/acre"],
+                "chara": ["Product D - Max Rate: 2.0 gal/acre"],
+                "planktonic algae": ["Product E - Max Rate: 1.0 gal/acre"],
+                "submerged vegetation": ["Product F - Max Rate: 4.0 gal/acre"],
+                "floating vegetation": ["Product G - Max Rate: 2.5 gal/acre"],
+                "emergent vegetation": ["Product H - Max Rate: 1.0 gal/acre"]
+            };
+
+            applicationSection.addEventListener('change', function() {
+                herbicideList.innerHTML = '';
+                const selected = Array.from(applicationSection.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(checkbox => checkbox.value);
+
+                selected.forEach(selection => {
+                    if (productData[selection]) {
+                        productData[selection].forEach(product => {
+                            const li = document.createElement('li');
+                            li.textContent = product;
+                            herbicideList.appendChild(li);
+                        });
+                    }
+                });
+            });
+
+            document.getElementById('form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const customer = document.getElementById('customer').value;
+                const customerEmail = customer.split('|')[1].trim();
+                const applications = Array.from(applicationSection.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(checkbox => checkbox.value);
+                const recordsEmail = "records@example.com";
+                const formData = {
+                    date: dateField.value,
+                    time: timeField.value,
+                    customer: customer.split('|')[0].trim(),
+                    applications,
+                    herbicides: Array.from(herbicideList.querySelectorAll('li')).map(li => li.textContent)
+                };
+
+                console.log('Send to:', customerEmail, recordsEmail);
+                console.log('Form Data:', formData);
+
+                alert("Form submitted! Check email for the treatment record.");
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Pesticide Application Record</h1>
+    <form id="form">
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" readonly><br>
+
+        <label for="time">Time:</label>
+        <input type="time" id="time" name="time" readonly><br>
+
+        <label for="customer">Customer:</label>
+        <select id="customer" name="customer">
+            <option value="">Select Customer</option>
+            <option value="Customer A | emailA@example.com">Customer A</option>
+            <option value="Customer B | emailB@example.com">Customer B</option>
+            <!-- Add more customers here -->
+        </select><br>
+
+        <fieldset id="application">
+            <legend>Application:</legend>
+            <label><input type="checkbox" value="submerged algae"> Submerged Algae</label><br>
+            <label><input type="checkbox" value="floating algae"> Floating Algae</label><br>
+            <label><input type="checkbox" value="chara"> Chara</label><br>
+            <label><input type="checkbox" value="planktonic algae"> Planktonic Algae</label><br>
+            <label><input type="checkbox" value="submerged vegetation"> Submerged Vegetation</label><br>
+            <label><input type="checkbox" value="floating vegetation"> Floating Vegetation</label><br>
+            <label><input type="checkbox" value="emergent vegetation"> Emergent Vegetation</label><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Herbicides and Algaecides:</legend>
+            <ul id="herbicide-list"></ul>
+        </fieldset>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
